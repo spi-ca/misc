@@ -20,7 +20,7 @@ func (j JSON) String() string {
 
 // Unmarshal your JSON variable into dest.
 func (j JSON) Unmarshal(dest any) error {
-	iter := misc.JSONCodec.BorrowIterator(nil)
+	iter := misc.JSONCodec.BorrowIterator(j)
 	defer misc.JSONCodec.ReturnIterator(iter)
 	iter.ReadVal(dest)
 	return iter.Error

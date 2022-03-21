@@ -18,12 +18,12 @@ func TestJSONUnmarshal(t *testing.T) {
 	t.Parallel()
 
 	type JSONTest struct {
-		Name string
-		Age  int
+		Name string `json:"name"`
+		Age  int    `json:"age"`
 	}
 	var jt JSONTest
 
-	j := JSON(`{"Name":"hi","Age":15}`)
+	j := JSON(`{"name":"hi","age":15}`)
 	err := j.Unmarshal(&jt)
 	if err != nil {
 		t.Error(err)
@@ -41,8 +41,8 @@ func TestJSONMarshal(t *testing.T) {
 	t.Parallel()
 
 	type JSONTest struct {
-		Name string
-		Age  int
+		Name string `json:"name"`
+		Age  int    `json:"age"`
 	}
 	jt := JSONTest{
 		Name: "hi",
@@ -55,8 +55,8 @@ func TestJSONMarshal(t *testing.T) {
 		t.Error(err)
 	}
 
-	if j.String() != `{"Name":"hi","Age":15}` {
-		t.Errorf("expected %s, got %s", `{"Name":"hi","Age":15}`, j.String())
+	if j.String() != `{"name":"hi","age":15}` {
+		t.Errorf("expected %s, got %s", `{"name":"hi","age":15}`, j.String())
 	}
 }
 
@@ -92,7 +92,7 @@ func TestJSONMarshalJSON(t *testing.T) {
 func TestJSONValue(t *testing.T) {
 	t.Parallel()
 
-	j := JSON(`{"Name":"hi","Age":15}`)
+	j := JSON(`{"name":"hi","age":15}`)
 	v, err := j.Value()
 	if err != nil {
 		t.Error(err)

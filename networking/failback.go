@@ -63,7 +63,7 @@ func (d *RoundrobinDialer) resolveHost(ctx context.Context, network, connectAddr
 	}
 
 	if resolvedIPs, err = d.Dialer.Resolver.LookupIP(ctx, network, host); err != nil {
-		log.Printf("cannot resolve host %s : %s", err)
+		log.Printf("cannot resolve host %s(%s) : %s", host, network, err)
 		return
 	}
 
