@@ -29,26 +29,32 @@ func (l *LineBreaker) Write(b []byte) (n int, err error) {
 		return len(b), nil
 	}
 
-	_, err = l.Out.Write(l.line[0:l.used])
+	_, err = l.Out.Write(l.line[0:l.used:l.used])
 	if err != nil {
 		return
 	}
-	excess := pemLineLength - l.used
-	l.used = 0
-
-	n, err = l.Out.Write(b[0:excess])
-	if err != nil {
-		return
-	}
-
-	_, err = l.Out.Write(nl)
-	if err != nil {
-		return
-	}
+	brk := pemLineLength - l.used
 
 	var nn int
-	nn, err = l.Write(b[excess:])
-	return n + nn, err
+	for len(b) >= brk {
+		nn, err = l.Out.Write(b[0:brk:brk])
+		n += nn
+		if err != nil {
+			return
+		}
+
+		_, err = l.Out.Write(nl)
+		if err != nil {
+			return
+		}
+		b = b[brk:]
+		brk = pemLineLength
+	}
+
+	l.used = len(b)
+	copy(l.line[:], b)
+	n += len(b)
+	return
 }
 
 // Close flushes any pending output from the writer.
