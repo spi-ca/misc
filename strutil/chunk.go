@@ -7,6 +7,7 @@ import (
 const pemLineLength = 64
 
 // LineBreaker is an io.Writer that advances a newline if one line exceeds 64 bytes.
+// this source originally comes from the url(https://cs.opensource.google/go/go/+/refs/tags/go1.24.0:src/encoding/pem/pem.go;l=89)
 type LineBreaker struct {
 	// Out os
 	Out  io.Writer
@@ -28,24 +29,32 @@ func (l *LineBreaker) Write(b []byte) (n int, err error) {
 		return len(b), nil
 	}
 
-	n, err = l.Out.Write(l.line[0:l.used])
+	_, err = l.Out.Write(l.line[0:l.used:l.used])
 	if err != nil {
 		return
 	}
-	excess := pemLineLength - l.used
-	l.used = 0
+	brk := pemLineLength - l.used
 
-	n, err = l.Out.Write(b[0:excess])
-	if err != nil {
-		return
+	var nn int
+	for len(b) >= brk {
+		nn, err = l.Out.Write(b[0:brk:brk])
+		n += nn
+		if err != nil {
+			return
+		}
+
+		_, err = l.Out.Write(nl)
+		if err != nil {
+			return
+		}
+		b = b[brk:]
+		brk = pemLineLength
 	}
 
-	n, err = l.Out.Write(nl)
-	if err != nil {
-		return
-	}
-
-	return l.Out.Write(b[excess:])
+	l.used = len(b)
+	copy(l.line[:], b)
+	n += len(b)
+	return
 }
 
 // Close flushes any pending output from the writer.
